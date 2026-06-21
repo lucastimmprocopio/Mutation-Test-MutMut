@@ -1,0 +1,65 @@
+"""
+SUITE DE TESTES "FORTE" (versão da SOLUÇÃO)
+Verifica VALORES EXATOS e casos de borda. Isso mata os mutantes.
+"""
+
+import pytest
+from shipping import calculate_order_total
+
+
+def test_no_discount_pays_shipping():
+    assert calculate_order_total(50, 1) == 65.0
+
+
+def test_quantity_below_discount_threshold():
+    assert calculate_order_total(100, 2) == 115.0
+
+
+def test_quantity_three_items_gets_5_percent():
+    assert calculate_order_total(100, 3) == 110.0
+
+
+def test_quantity_four_items_still_5_percent():
+    assert calculate_order_total(100, 4) == 110.0
+
+
+def test_quantity_five_items_gets_10_percent():
+    assert calculate_order_total(100, 5) == 105.0
+
+
+def test_quantity_ten_items_gets_15_percent():
+    assert calculate_order_total(100, 10) == 100.0
+
+
+def test_coupon_promo10():
+    assert calculate_order_total(100, 1, "PROMO10") == 105.0
+
+
+def test_coupon_promo20():
+    assert calculate_order_total(100, 1, "PROMO20") == 95.0
+
+
+def test_invalid_coupon_is_ignored():
+    assert calculate_order_total(100, 1, "CUPOM_QUE_NAO_EXISTE") == 115.0
+
+
+def test_discount_cap_is_30_percent():
+    assert calculate_order_total(100, 10, "PROMO20") == 85.0
+
+
+def test_free_shipping_exact_threshold():
+    assert calculate_order_total(200, 1) == 200.0
+
+
+def test_shipping_charged_just_below_threshold():
+    assert calculate_order_total(199, 1) == 214.0
+
+
+def test_negative_subtotal_raises_value_error():
+    with pytest.raises(ValueError):
+        calculate_order_total(-10, 1)
+
+
+def test_negative_quantity_raises_value_error():
+    with pytest.raises(ValueError):
+        calculate_order_total(10, -1)
